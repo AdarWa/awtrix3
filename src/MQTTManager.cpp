@@ -5,6 +5,8 @@
 #include <ArduinoHA.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
+
+#include "Alarm.h"
 #include "Dictionary.h"
 #include "PeripheryManager.h"
 #include "UpdateManager.h"
@@ -56,6 +58,13 @@ void processMqttMessage(const String &strTopic, const String &payloadCopy)
             return;
         }
         DisplayManager.generateNotification(0, payloadCopy.c_str());
+        return;
+    }
+
+    if (strTopic.equals(MQTT_PREFIX + "/setAlarm")) {
+        char* endptr;
+        time_t storedTime = strtoll(payloadCopy.c_str(), &endptr, 10);
+        Alarm::getInstance().setAlarm(storedTime);
         return;
     }
 
