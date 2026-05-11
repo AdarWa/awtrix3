@@ -16,6 +16,9 @@
 #include "Games/GameManager.h"
 #include <EEPROM.h>
 
+#include "Alarm.h"
+#include "timer.h"
+
 WiFiUDP udp;
 
 unsigned int localUdpPort = 4210;
@@ -96,6 +99,30 @@ void addHandler()
                    }else{
                     mws.webserver->send(404,F("text/plain"),F("FileNotFound"));  
                    }; });
+    mws.addHandler("/api/setAlarm", HTTP_PUT, [] {
+        String strTime = mws.webserver->arg("plain");
+        char* endptr;
+        time_t storedTime = strtoll(strTime.c_str(), &endptr, 10);
+        Alarm::getInstance().setAlarm(storedTime);
+        mws.webserver->send(200,F("text/plain"),F("OK"));
+    });
+    mws.addHandler("/api/getAlarm", HTTP_GET, [] {
+        char buf[20] = {};
+        Alarm::getInstance().fetchAlarm();
+        if (!Alarm::getInstance().getNextAlarm()) {
+            mws.webserver->send(200,F("text/plain"),F("-1"));
+            return;
+        }
+        int len = snprintf(buf, sizeof(buf), "%ld", *Alarm::getInstance().getNextAlarm());
+        buf[len] = '\0';
+        mws.webserver->send(200,F("text/plain"),buf);
+    });
+    mws.addHandler("/api/getTime", HTTP_GET, [] {
+        char buf[20] = {};
+        int len = snprintf(buf, sizeof(buf), "%ld", timer_time());
+        buf[len] = '\0';
+        mws.webserver->send(200, F("text/plain"), buf);
+    });
 
     mws.addHandler("/api/moodlight", HTTP_POST, []()
                    {
