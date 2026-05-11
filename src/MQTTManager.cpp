@@ -412,7 +412,8 @@ void onMqttConnected()
         "/sound",
         "/rtttl",
         "/sendscreen",
-        "/r2d2"};
+        "/r2d2",
+        "/setAlarm"};
     for (const char *topic : topics)
     {
         if (DEBUG_MODE)
