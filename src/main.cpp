@@ -32,6 +32,8 @@
 
 
 #include <Arduino.h>
+
+#include "Alarm.h"
 #include "DisplayManager.h"
 #include "PeripheryManager.h"
 #include "MQTTManager.h"
@@ -61,6 +63,7 @@ void BootAnimation(void *parameter)
 
 void setup()
 {
+
   pinMode(15, OUTPUT);
   digitalWrite(15, LOW);
   delay(2000);
@@ -112,6 +115,8 @@ void setup()
   }
   delay(200);
   DisplayManager.setBrightness(BRIGHTNESS);
+  timer_tick();
+  Alarm::getInstance().setup();
 }
 
 void loop()
@@ -124,4 +129,5 @@ void loop()
   {
     MQTTManager.tick();
   }
+  Alarm::getInstance().loop();
 }
